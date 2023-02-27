@@ -44914,7 +44914,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: fe9a1ace215395c4ea1a7523c10bb272,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -17.89
+      value: -16.392
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fe9a1ace215395c4ea1a7523c10bb272,
         type: 3}
@@ -44924,7 +44924,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: fe9a1ace215395c4ea1a7523c10bb272,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.65
+      value: -3.074
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fe9a1ace215395c4ea1a7523c10bb272,
         type: 3}
@@ -46119,7 +46119,7 @@ SphereCollider:
   m_GameObject: {fileID: 1923690477}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 8
   m_Center: {x: 0, y: 0, z: 0}
@@ -51395,3 +51395,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _animator: {fileID: 2147153525}
   _roateSpeed: 10
+--- !u!114 &2147153538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147153520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21e6a4bbc7172304486ec5a84ef1cacd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _zombieFSM: {fileID: 0}
+--- !u!114 &2147153540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2147153520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82afcd09657b2944bb8cb5e5ab803415, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -4,14 +4,18 @@ using UnityEngine;
 
 public class ZombieFSM : MonoBehaviour
 {
-    private Vector3 _RandomDir = new();
-    private Coroutine idleCorutine = null;
+    private ZombieFSM_Idle _zombieFSM_Idle;
+
+
     private AnimMovement _animMovement;
+    public AnimMovement AnimMove { get => _animMovement; }
+    [SerializeField] private ZombieFSM_Idle _zombieFSM;
     public enum ZOMBIEBEHAVIOR
     {
         Start,
         Idle, // 배회. 주변을 배회
         curiosity, // 호기심. 소음에 이끌려 좀비가 모일 때 발동
+        Attck, // 플레이어가 설치한 오브젝트를 발견하고 공격할 때
         Tracking,//추적. 적을 인지해서 추적하는 상황
         Moribund,//시체상태. 부활의 여지가 있는 상황
         Death//온전한 사망. 잠시 후 시체가 사라짐
@@ -20,31 +24,36 @@ public class ZombieFSM : MonoBehaviour
     private ZOMBIEBEHAVIOR _currentState = ZOMBIEBEHAVIOR.Start;
 
     private void Start()
-    { 
-        //ChangerState(ZOMBIEBEHAVIOR.Idle); 
+    {
+        if(!Init()) 
+            Debug.LogError("Init() 실패! 컴포넌트를 찾지 못했습니다.");
 
+        ChangerState(ZOMBIEBEHAVIOR.Idle); 
 
-        if (!TryGetComponent(out AnimMovement _animMovement))
-        {
-            Debug.LogError("애니메이터가 존재하지 않습니다.");
-            this._animMovement = _animMovement;
-        }
     }
+
+    //inerface는 updo enddo startdo가 있음
 
     private void Update()
     {
+        //FSM(interface)
         StateMachine();
     }
 
-    public void StateMachine()
+    public void StateMachine() //FSM
     {
+
+        //interface.updo();
         switch (_currentState)
         {
             case ZOMBIEBEHAVIOR.Start:
                 break;
             case ZOMBIEBEHAVIOR.Idle:
+                _zombieFSM_Idle.StateMachine();
                 break;
             case ZOMBIEBEHAVIOR.curiosity:
+                break;
+            case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
                 break;
@@ -57,6 +66,9 @@ public class ZombieFSM : MonoBehaviour
 
     public void ChangerState(ZOMBIEBEHAVIOR newState)
     {
+        //FSM(interface)
+        //_currentState = newState;
+        //FSM(interface)
         EndStateBehavior();
         _currentState = newState;
         StartStateBehavior();
@@ -69,9 +81,11 @@ public class ZombieFSM : MonoBehaviour
             case ZOMBIEBEHAVIOR.Start:
                 break;
             case ZOMBIEBEHAVIOR.Idle:
-                StopCoroutine(idleCorutine);
+                _zombieFSM_Idle.EndStateBehavior();
                 break;
             case ZOMBIEBEHAVIOR.curiosity:
+                break;
+            case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
                 break;
@@ -89,9 +103,11 @@ public class ZombieFSM : MonoBehaviour
             case ZOMBIEBEHAVIOR.Start:
                 break;
             case ZOMBIEBEHAVIOR.Idle:
-                idleCorutine = StartCoroutine(IdelRandomMove());
+                _zombieFSM_Idle.StartStateBehavior();
                 break;
             case ZOMBIEBEHAVIOR.curiosity:
+                break;
+            case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
                 break;
@@ -102,32 +118,19 @@ public class ZombieFSM : MonoBehaviour
         }
     }
 
-    IEnumerator IdelRandomMove()
+    /* codes */
+
+    private bool Init()
     {
-        while (true)
-        {
-            // 2에서 5초 사이의 랜덤한 시간 구하기
-            float waitTime = Random.Range(6f, 6.1f);
+        _zombieFSM_Idle = GetComponent<ZombieFSM_Idle>();
+        if (_zombieFSM_Idle == null) return false;
 
-            // 랜덤한 시간만큼 기다리기
-            yield return new WaitForSeconds(waitTime);
 
-            // 다음 코드 실행
-            //random dir Lookat
-            _RandomDir.x = Random.Range(-100f, 100f);
-            _RandomDir.z = Random.Range(-100f, 100f);
+        _animMovement = GetComponent<AnimMovement>();
+        if (_animMovement == null) return false;
 
-            Debug.DrawRay(transform.position, _RandomDir,Color.red, 2.0f);
 
-            if (!TryGetComponent(out AnimMovement _animMovement))
-            {
-                Debug.LogError("애니메이터가 존재하지 않습니다.");
-                this._animMovement = _animMovement;
-            }
-            _animMovement.Lookat(_RandomDir);
-            //trigger
-            //_animMovement.WanderWalk();
-
-        }
+        return true;
     }
+
 }
