@@ -10,9 +10,12 @@ public class PlayerMovement : CharacterMovement
     public void FixedUpdate()
     {
         Vector3 target = new Vector3(variableJoystick.Horizontal,0, variableJoystick.Vertical);
-        MoveToPosition(transform.position + target);
+        MoveToPosition(
+            transform.position + target,
+            3
+            );
 
-        if(variableJoystick.Horizontal == 0 && variableJoystick.Vertical == 0) { StopCoroutine(coMove); }
+        if(variableJoystick.Horizontal == 0 && variableJoystick.Vertical == 0 && coMove != null) { StopMovement(); }
     }
 
 }

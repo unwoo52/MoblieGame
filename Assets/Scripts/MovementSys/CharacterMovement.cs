@@ -25,7 +25,7 @@ public class CharacterMovement : MonoBehaviour
             return _anim;
         }
     }
-    protected void MoveToPosition(Vector3 targetPos, float MovSpeed = 1.0f, float RotSpeed = 360.0f, MyAction done = null, float distance = 0.0f)
+    protected void MoveToPosition(Vector3 targetPos, float MovSpeed = 1.0f, float RotSpeed = 720.0f, MyAction done = null, float distance = 0.0f)
     {
         if (Vector3.Distance(targetPos, transform.position) < 0.01f)
         {
@@ -35,7 +35,7 @@ public class CharacterMovement : MonoBehaviour
         if (coMove != null) StopCoroutine(coMove);
         coMove = StartCoroutine(MovingToPosition(targetPos, MovSpeed, distance, done));
         if (coRot != null) StopCoroutine(coRot);
-        coRot = StartCoroutine(Rotating(transform, targetPos, RotSpeed));
+        coRot = StartCoroutine(Rotating(transform.GetChild(0), targetPos, RotSpeed));
     }
 
     IEnumerator MovingToPosition(Vector3 target, float MovSpeed, float distance, MyAction done = null)
@@ -49,8 +49,6 @@ public class CharacterMovement : MonoBehaviour
 
         while (dist > distance)
         {
-            if (!myAnim.GetBool("IsAttacking"))
-            {
                 float delta = MovSpeed * Time.deltaTime;
                 if (delta > dist)
                 {
@@ -58,11 +56,6 @@ public class CharacterMovement : MonoBehaviour
                 }
                 dist -= delta;
                 transform.Translate(dir * delta, Space.World);
-            }
-            else
-            {
-                break;
-            }
             yield return null;
         }
         myAnim.SetBool("IsMoving", false);
@@ -74,10 +67,14 @@ public class CharacterMovement : MonoBehaviour
         Vector3 dir = target - transform.position;
         if (dir.magnitude <= Mathf.Epsilon) yield break;
         dir.Normalize();
+
+        //d = 내적
         float d = Vector3.Dot(dir, transform.forward);
+
+        //r = radian값을 아크cos으로 변환한 값
         float r = Mathf.Acos(d);
         float angle = r * Mathf.Rad2Deg;
-        
+
         if (angle > Mathf.Epsilon)
         {
             float rotDir = Vector3.Dot(dir, transform.right) < 0.0f ? -1.0f : 1.0f;
@@ -115,7 +112,7 @@ public class CharacterMovement : MonoBehaviour
             Vector3 rot = Vector3.RotateTowards(transform.forward, dir, RotSpeed * Mathf.Deg2Rad * Time.deltaTime, 0.0f);
             transform.rotation = Quaternion.LookRotation(rot);
 
-            if (!myAnim.GetBool("IsAttacking") && dist > AttackRange + 0.01f)
+            if (!(dist > (AttackRange + 0.01f)))
             {
                 myAnim.SetBool("IsMoving", true);
                 dir.Normalize();
@@ -159,6 +156,13 @@ public class CharacterMovement : MonoBehaviour
             
             yield return null;
         }
+    }
+
+    protected bool StopMovement()
+    {
+        StopCoroutine(coMove);
+        myAnim.SetBool("IsMoving", false);
+        return true;
     }
     #endregion
 }
