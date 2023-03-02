@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using UnityEngine.UI;
 using System;
 using static UnityEditor.PlayerSettings;
+using static UnityEngine.GraphicsBuffer;
 
 public class PathFinder : MonoBehaviour
 {
@@ -91,32 +92,28 @@ public class PathFinder : MonoBehaviour
             yield break;
         }
 
-        //distance 정의 목적지는, 다음 포인트와의 거리
         Vector3 destination = transform.position - pointlist[pointlist.Length - 1];
         float distance = destination.magnitude;
 
         currentCornerIndex = 1;
-        _animmove.OnLookat(pointlist[currentCornerIndex], testfloat);
         _animmove.OnlyMove();
-        while (distance >= arrivalRange)
+        while (true)
         {
-            destination = transform.position - pointlist[currentCornerIndex + 1];
-            distance = destination.magnitude;
-            
-            //코너에 도착하면, 코너 저장되는 멤버필드 수정
-            if(distance < arrivalRange)
+            if (distance < arrivalRange)
             {
-                //마지막이라면, 이동 코루틴 종료
-                if (currentCornerIndex == pointlist.Length - 1)
+                currentCornerIndex++;
+                if (currentCornerIndex == pointlist.Length)
                 {
-                    _animmove.OnStopLookat();
                     _animmove.OnStopMove();
                     yield break;
                 }
-                currentCornerIndex++;
-                _animmove.OnLookat(pointlist[currentCornerIndex], testfloat);
                 Debug.Log(currentCornerIndex);
             }
+            destination = transform.position - pointlist[currentCornerIndex];
+            distance = destination.magnitude;
+            Debug.Log("Lookat" + pointlist[currentCornerIndex]);
+            _animmove.Lookat(pointlist[currentCornerIndex]);
+
             yield return null;
         }
     }

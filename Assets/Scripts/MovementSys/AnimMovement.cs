@@ -48,13 +48,13 @@ public class AnimMovement : MonoBehaviour
         _lookCorutine = StartCoroutine(LookatCorutine(toTarget, lookspeed));
     }
 
-    public void Lookat(Vector3 toTarget)
+    public void Lookat(Vector3 toTarget, float rotatespeed = 20f)
     {
         //Debug.Log(toTarget);
         Debug.DrawRay(toTarget, Vector3.up, Color.yellow, 10f);
-        Quaternion targetRotation = Quaternion.LookRotation(toTarget);
+        Quaternion targetRotation = Quaternion.LookRotation(toTarget - transform.position);
         transform.rotation =
-            Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _roateSpeed);
+            Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotatespeed);
     }
 
     public void Move(Vector3 toTarget)
