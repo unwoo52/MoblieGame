@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class ZombieFSM : MonoBehaviour
 {
-    private ZombieFSM_Idle _zombieFSM_Idle;
-
-
-    private AnimMovement _animMovement;
+    [SerializeField] private ZombieFSM_Idle _zombieFSM_Idle;
+    [SerializeField] private ZombieFSM_Tracking _zombieFSM_Tracking;
+    [SerializeField] private AnimMovement _animMovement;
     public AnimMovement AnimMove { get => _animMovement; }
-    [SerializeField] private ZombieFSM_Idle _zombieFSM;
     public enum ZOMBIEBEHAVIOR
     {
         Start,
@@ -25,11 +23,10 @@ public class ZombieFSM : MonoBehaviour
 
     private void Start()
     {
-        if(!Init()) 
+        if(!Initialize()) 
             Debug.LogError("Init() 실패! 컴포넌트를 찾지 못했습니다.");
 
-        ChangerState(ZOMBIEBEHAVIOR.Idle); 
-
+        //ChangerState(ZOMBIEBEHAVIOR.Idle); 
     }
 
     //inerface는 updo enddo startdo가 있음
@@ -120,17 +117,12 @@ public class ZombieFSM : MonoBehaviour
 
     /* codes */
 
-    private bool Init()
+    private bool Initialize()
     {
-        _zombieFSM_Idle = GetComponent<ZombieFSM_Idle>();
-        if (_zombieFSM_Idle == null) return false;
-
-
-        _animMovement = GetComponent<AnimMovement>();
-        if (_animMovement == null) return false;
-
+        if (TryGetComponent(out AnimMovement animMovement)) _animMovement = animMovement; else return false;
+        if (TryGetComponent(out ZombieFSM_Idle zombieFSM_Idle)) _zombieFSM_Idle = zombieFSM_Idle; else return false;
+        if (TryGetComponent(out ZombieFSM_Tracking zombieFSM_Tracking)) _zombieFSM_Tracking = zombieFSM_Tracking; else return false;
 
         return true;
     }
-
 }

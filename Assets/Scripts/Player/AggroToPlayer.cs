@@ -15,39 +15,38 @@ public class AggroToPlayer : MonoBehaviour
 
     IEnumerator AggroEnemy()
     {
-        if (EnemyList.Count <= 0) yield return waitTime;
-
         while (true)
         {
             foreach (GameObject enemy in EnemyList)
             {
-                TryGetComponent(out SearchingFSM_LookAround script);
+                //if (!TryGetComponent(out SearchingFSM_LookAround script)) break;
                 Ray ray = new(transform.position, enemy.transform.position - transform.position);
+                //Debug.DrawRay(transform.position + Vector3.up, enemy.transform.position - transform.position + Vector3.up, Color.red, 0.5f);
 
-                script.GetRay(ray, this.gameObject);
+                //script.GetRay(ray, this.gameObject);
             }
             yield return waitTime;
         }
     }
-
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if(collision.gameObject.layer == enemyLayerMask)
+        if (1 << other.gameObject.layer == enemyLayerMask)
         {
-            EnemyList.Add(collision.gameObject);
+            EnemyList.Add(other.gameObject);
         }
+
     }
 
-    private void OnCollisionExit(Collision collision)
+    private void OnTriggerExit(Collider other)
     {
+        /*
         //범위 밖으로 나간 적에게 em.Reset실행
-        if (collision.gameObject.layer == enemyLayerMask)
+        if (1 << other.gameObject.layer == enemyLayerMask)
         {
-            EnemyList.Remove(collision.gameObject);
+            EnemyList.Remove(other.gameObject);
             TryGetComponent(out SearchingFSM_LookAround script);
             script.LostInSight();
         }
+        */
     }
-
-    /* codes */
 }

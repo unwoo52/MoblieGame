@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,16 +7,28 @@ using UnityEngine;
 
 public class AnimMovement : MonoBehaviour
 {
-    private Coroutine lookCorutine = null;
+    private Coroutine _lookCorutine = null;
+    public Coroutine LookCorutine { get { return _lookCorutine; } }
     [SerializeField]
-    protected Animator _animator;
+    private Animator _animator;
+    private PathFinder _pathfinder;
+
+    public Action<Vector3> OnMove => Move;
+    public Action OnOnlyMove => OnlyMove;
+    public Action OnStopMove => StopMove;
+    public Action<Vector3, float> OnLookat => OnceLookat;
+    public Action OnStopLookat => StopLookat;
+
+    private void Start()
+    {
+        if (!Initialize())
+            Debug.LogError("ERROR! 컴포넌트를 찾지 못했습니다.");
+    }
+
 
 
     [SerializeField]
     protected float _roateSpeed = 10;
-
-    protected Dictionary<string, float> _clipTimes = new Dictionary<string, float>();
-
 
     protected void Hit() { }
 
@@ -28,15 +41,17 @@ public class AnimMovement : MonoBehaviour
         _animator.SetTrigger("TriggerAttack");
     }
 
-    public void OnceLookat(Vector3 toTarget)
+    public void OnceLookat(Vector3 toTarget, float lookspeed = 1)
     {
-        if (lookCorutine != null) StopCoroutine(lookCorutine);
-        lookCorutine = StartCoroutine(LookatCorutine(toTarget));
-
+        Debug.DrawRay(toTarget, Vector3.up, Color.yellow, 10f);
+        if (_lookCorutine != null) StopCoroutine(_lookCorutine);
+        _lookCorutine = StartCoroutine(LookatCorutine(toTarget, lookspeed));
     }
 
     public void Lookat(Vector3 toTarget)
     {
+        //Debug.Log(toTarget);
+        Debug.DrawRay(toTarget, Vector3.up, Color.yellow, 10f);
         Quaternion targetRotation = Quaternion.LookRotation(toTarget);
         transform.rotation =
             Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * _roateSpeed);
@@ -48,9 +63,20 @@ public class AnimMovement : MonoBehaviour
         _animator.SetBool("IsMove", true);
     }
 
+    public void OnlyMove()
+    {
+        _animator.SetBool("IsMove", true);
+
+    }
+
     public void StopMove()
     {
         _animator.SetBool("IsMove", false);
+    }
+
+    public void StopLookat()
+    {
+        if (_lookCorutine != null) StopCoroutine(_lookCorutine);
     }
 
     public void Scream()
@@ -63,7 +89,8 @@ public class AnimMovement : MonoBehaviour
         _animator.SetTrigger("WanderWalk");
     }
 
-    IEnumerator LookatCorutine(Vector3 Target)
+
+    IEnumerator LookatCorutine(Vector3 Target, float lookspeed)
     {
         // 현재 객체와 타겟 사이의 거리를 계산합니다.
         float distance = Vector3.Distance(transform.position, Target);
@@ -85,7 +112,7 @@ public class AnimMovement : MonoBehaviour
         while (angle > 0.01f)
         {
             // 회전 시간을 계산합니다.
-            float time = Time.deltaTime * _roateSpeed / 15;
+            float time = Time.deltaTime * lookspeed;
 
             // Slerp를 사용하여 현재 회전 방향에서 목표 회전 방향으로 부드럽게 회전합니다.
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, time);
@@ -110,5 +137,14 @@ public class AnimMovement : MonoBehaviour
 
         // 회전을 완료하면 Coroutine을 종료합니다.
         yield break;
+    }
+
+
+    private bool Initialize()
+    {
+        if (TryGetComponent(out Animator animator)) _animator = animator; else return false;
+        if (TryGetComponent(out PathFinder pathfinder)) _pathfinder = pathfinder; else return false;
+
+        return true;
     }
 }

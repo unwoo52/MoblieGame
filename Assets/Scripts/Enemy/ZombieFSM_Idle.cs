@@ -6,7 +6,7 @@ public class ZombieFSM_Idle : MonoBehaviour
 {
     private Vector3 _RandomDir = new();
     private Coroutine idleCorutine = null;
-    private ZombieFSM _zombieFSM;
+    [SerializeField] private ZombieFSM _zombieFSM;
     private void Start()
     {
         if (!Initialized())
@@ -15,6 +15,7 @@ public class ZombieFSM_Idle : MonoBehaviour
     public void EndStateBehavior()
     {
         StopCoroutine(idleCorutine);
+        StopCoroutine(_zombieFSM.AnimMove.LookCorutine);
     }
 
     public void StartStateBehavior()
@@ -65,8 +66,7 @@ public class ZombieFSM_Idle : MonoBehaviour
 
     private bool Initialized()
     {
-        _zombieFSM = GetComponent<ZombieFSM>();
-        if (_zombieFSM == null) return false;
+        if (TryGetComponent(out ZombieFSM zombieFSM)) _zombieFSM = zombieFSM; else return false;
 
         return true;
     }
