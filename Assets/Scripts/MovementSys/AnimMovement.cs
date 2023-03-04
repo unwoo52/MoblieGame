@@ -11,24 +11,13 @@ public class AnimMovement : MonoBehaviour
     public Coroutine LookCorutine { get { return _lookCorutine; } }
     [SerializeField]
     private Animator _animator;
-    private PathFinder _pathfinder;
 
-    public Action<Vector3> OnMove => Move;
-    public Action OnOnlyMove => OnlyMove;
-    public Action OnStopMove => StopMove;
-    public Action<Vector3, float> OnLookat => OnceLookat;
-    public Action OnStopLookat => StopLookat;
 
     private void Start()
     {
         if (!Initialize())
             Debug.LogError("ERROR! 컴포넌트를 찾지 못했습니다.");
     }
-
-
-
-    [SerializeField]
-    protected float _roateSpeed = 10;
 
     protected void Hit() { }
 
@@ -41,50 +30,47 @@ public class AnimMovement : MonoBehaviour
         _animator.SetTrigger("TriggerAttack");
     }
 
-    public void OnceLookat(Vector3 toTarget, float lookspeed = 1)
+    protected void OnceLookat(Vector3 toTarget, float lookspeed = 1)
     {
-        Debug.DrawRay(toTarget, Vector3.up, Color.yellow, 10f);
         if (_lookCorutine != null) StopCoroutine(_lookCorutine);
         _lookCorutine = StartCoroutine(LookatCorutine(toTarget, lookspeed));
     }
 
-    public void Lookat(Vector3 toTarget, float rotatespeed = 20f)
+    protected void Lookat(Vector3 toTarget, float rotatespeed = 20f)
     {
-        //Debug.Log(toTarget);
-        Debug.DrawRay(toTarget, Vector3.up, Color.yellow, 10f);
         Quaternion targetRotation = Quaternion.LookRotation(toTarget - transform.position);
         transform.rotation =
             Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotatespeed);
     }
 
-    public void Move(Vector3 toTarget)
+    protected void Move(Vector3 toTarget)
     {
         Lookat(toTarget);
         _animator.SetBool("IsMove", true);
     }
 
-    public void OnlyMove()
+    protected void OnlyMove()
     {
         _animator.SetBool("IsMove", true);
 
     }
 
-    public void StopMove()
+    protected void StopMove()
     {
         _animator.SetBool("IsMove", false);
     }
 
-    public void StopLookat()
+    protected void StopLookat()
     {
         if (_lookCorutine != null) StopCoroutine(_lookCorutine);
     }
 
-    public void Scream()
+    protected void Scream()
     {
         _animator.SetTrigger("TriggerScream");
     }
 
-    public void WanderWalk()
+    protected void WanderWalk()
     {
         _animator.SetTrigger("WanderWalk");
     }
@@ -143,7 +129,6 @@ public class AnimMovement : MonoBehaviour
     private bool Initialize()
     {
         if (TryGetComponent(out Animator animator)) _animator = animator; else return false;
-        if (TryGetComponent(out PathFinder pathfinder)) _pathfinder = pathfinder; else return false;
 
         return true;
     }
