@@ -57,11 +57,11 @@ public class ZombieFSM_Idle : MonoBehaviour
 
 
             Debug.DrawRay(_RandomDir, Vector3.up, Color.red, 4.0f);
-            _zombieFSM.AnimMove.OnceLookat(_RandomDir);
+            _anim.OnLookat(_RandomDir , 1);
 
             //
             //trigger
-            _zombieFSM.AnimMove.WanderWalk();
+            _anim.OnWanderWalk();
 
         }
     }
@@ -69,6 +69,7 @@ public class ZombieFSM_Idle : MonoBehaviour
     private bool Initialized()
     {
         if (TryGetComponent(out ZombieFSM zombieFSM)) _zombieFSM = zombieFSM; else return false;
+        if (TryGetComponent(out AnimContoller animContoller)) _anim = animContoller; else return false;
 
         return true;
     }

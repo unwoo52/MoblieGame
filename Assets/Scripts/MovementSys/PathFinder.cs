@@ -13,7 +13,7 @@ public class PathFinder : MonoBehaviour
     [SerializeField]
     private NavMeshAgent _agent;
 
-    private AnimMovement _animmove;
+    private AnimContoller _anim;
 
     private Coroutine coNavmove;
 
@@ -25,8 +25,7 @@ public class PathFinder : MonoBehaviour
 
     private void Awake()
     {
-
-        if(TryGetComponent(out AnimMovement animmove)) _animmove = animmove;
+        if(TryGetComponent(out AnimContoller animController)) _anim = animController;
         _path = new NavMeshPath();
     }
 
@@ -67,7 +66,7 @@ public class PathFinder : MonoBehaviour
         float distance = destination.magnitude;
 
         currentCornerIndex = 1;
-        _animmove.OnlyMove();
+        _anim.OnOnlyMove();
         while (true)
         {
             if (distance < arrivalRange)
@@ -75,7 +74,7 @@ public class PathFinder : MonoBehaviour
                 currentCornerIndex++;
                 if (currentCornerIndex == pointlist.Length)
                 {
-                    _animmove.OnStopMove();
+                    _anim.OnStopMove();
                     yield break;
                 }
                 Debug.Log(currentCornerIndex);
@@ -83,7 +82,7 @@ public class PathFinder : MonoBehaviour
             destination = transform.position - pointlist[currentCornerIndex];
             distance = destination.magnitude;
             Debug.Log("Lookat" + pointlist[currentCornerIndex]);
-            _animmove.Lookat(pointlist[currentCornerIndex]);
+            _anim.OnLookat(pointlist[currentCornerIndex], 20);
 
             yield return null;
         }

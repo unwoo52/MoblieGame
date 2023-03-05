@@ -14,6 +14,7 @@ public class TargetPlayerData
 
 public class SearchingFSM_LookAround : MonoBehaviour
 {
+    private AnimContoller _anim;
     private float watchedValue = 5.0f; //매 초 마다 가해지는 값
 
     private float watchedGagueMax = 100.0f;
@@ -32,7 +33,15 @@ public class SearchingFSM_LookAround : MonoBehaviour
 
     private void Start()
     {
-        if (!TryGetComponent(out AnimMovement animMovement)) Debug.LogError("이 enemy오브젝트에 AnimMovement컴포넌트를 추가해야 합니다.");
+        if (!Initialize())
+            Debug.LogError("ERROR! 컴포넌트를 찾지 못했습니다.");
+    }
+
+
+    private bool Initialize()
+    {
+        if (TryGetComponent(out AnimContoller animContoller)) _anim = animContoller; else return false;
+        return true;
     }
 
     public void GetRay(Ray ray, GameObject gameObject)
@@ -107,8 +116,8 @@ public class SearchingFSM_LookAround : MonoBehaviour
     private void StartTracking(GameObject gameObject)
     {
 
-        animMovement.Lookat(gameObject.transform.position);
-        animMovement.Scream();
+        _anim.OnLookat(gameObject.transform.position, 20);
+        _anim.OnScream();
         //lookat
 
         //scream
