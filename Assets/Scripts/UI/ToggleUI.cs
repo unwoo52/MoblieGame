@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class ToggleUI : MonoBehaviour
 {
-    private Coroutine coToggleInventory;
+    private Coroutine coToggle;
     private bool IsHideUI = true;
     [SerializeField] private Sprite ToggleButtonImageShow;
     [SerializeField] private Sprite ToggleButtonImageHide;
@@ -17,13 +17,18 @@ public class ToggleUI : MonoBehaviour
     {
         if(ContentRect == null) ContentRect = transform.parent.GetChild(0).GetComponent<RectTransform>();
     }
-    public void ToggleInventoryUI()
+    public void ToggleUIWidth()
     {
-        if (coToggleInventory != null) StopCoroutine(coToggleInventory);
-        coToggleInventory = StartCoroutine(IEToggleInventoryUI());
+        if (coToggle != null) StopCoroutine(coToggle);
+        coToggle = StartCoroutine(ToggleWidth());
     }
 
-    IEnumerator IEToggleInventoryUI()
+    public void ToggleUIHigth()
+    {
+        if (coToggle != null) StopCoroutine(coToggle);
+        coToggle = StartCoroutine(ToggleHigth());
+    }
+    IEnumerator ToggleWidth()
     {
         SwapImage();
         float endPosX = !IsHideUI ? ContentRect.rect.width : 0;
@@ -41,6 +46,29 @@ public class ToggleUI : MonoBehaviour
             rectTransform.anchoredPosition = position;
 
             distance = Mathf.Abs(rectTransform.anchoredPosition.x - endPosX);
+
+            yield return null;
+        }
+    }
+
+    IEnumerator ToggleHigth()
+    {
+        SwapImage();
+        float endPosY = !IsHideUI ? 0 : ContentRect.rect.height;
+
+        IsHideUI = !IsHideUI;
+
+        Vector2 position;
+        RectTransform rectTransform = transform.parent.GetComponent<RectTransform>();
+        float curX = rectTransform.anchoredPosition.x;
+        float distance = Mathf.Abs(rectTransform.anchoredPosition.y - endPosY);
+
+        while (Mathf.Epsilon < distance)
+        {
+            position = new Vector2(curX, Mathf.Lerp(rectTransform.anchoredPosition.y, endPosY, ToggleSpeedInventoryUI));
+            rectTransform.anchoredPosition = position;
+
+            distance = Mathf.Abs(rectTransform.anchoredPosition.y - endPosY);
 
             yield return null;
         }
