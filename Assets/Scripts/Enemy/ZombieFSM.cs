@@ -2,12 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ZombieFSM : MonoBehaviour
+public class ZombieFSM : MonoBehaviour, ILostTarget
 {
     [SerializeField] private ZombieFSM_Idle _zombieFSM_Idle;
     [SerializeField] private ZombieFSM_Tracking _zombieFSM_Tracking;
-    [SerializeField] private AnimMovement _animMovement;
-    public AnimMovement AnimMove { get => _animMovement; }
+    [SerializeField] private AnimContoller _anim;
+    [SerializeField] private TrackingScript trackingScript;
+    public AnimContoller Anim { get => _anim; }
+    public TrackingScript TrackingScript => trackingScript;
     public enum ZOMBIEBEHAVIOR
     {
         Start,
@@ -26,21 +28,24 @@ public class ZombieFSM : MonoBehaviour
         if(!Initialize()) 
             Debug.LogError("Init() 실패! 컴포넌트를 찾지 못했습니다.");
 
-        //ChangerState(ZOMBIEBEHAVIOR.Idle); 
+        ChangerState(ZOMBIEBEHAVIOR.Idle); 
     }
-
-    //inerface는 updo enddo startdo가 있음
 
     private void Update()
     {
-        //FSM(interface)
+        ConditionMethod_StatusChange();
         StateMachine();
     }
-
-    public void StateMachine() //FSM
+    public void ChangerState(ZOMBIEBEHAVIOR newState)
     {
+        EndStateBehavior();
+        _currentState = newState;
+        StartStateBehavior();
+    }
 
-        //interface.updo();
+
+    public void StateMachine()
+    {
         switch (_currentState)
         {
             case ZOMBIEBEHAVIOR.Start:
@@ -53,22 +58,13 @@ public class ZombieFSM : MonoBehaviour
             case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
+                _zombieFSM_Tracking.StateMachine();
                 break;
             case ZOMBIEBEHAVIOR.Moribund:
                 break;
             case ZOMBIEBEHAVIOR.Death:
                 break;
         }
-    }
-
-    public void ChangerState(ZOMBIEBEHAVIOR newState)
-    {
-        //FSM(interface)
-        //_currentState = newState;
-        //FSM(interface)
-        EndStateBehavior();
-        _currentState = newState;
-        StartStateBehavior();
     }
 
     private void EndStateBehavior()
@@ -85,6 +81,7 @@ public class ZombieFSM : MonoBehaviour
             case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
+                _zombieFSM_Tracking.EndStateBehavior();
                 break;
             case ZOMBIEBEHAVIOR.Moribund:
                 break;
@@ -107,6 +104,7 @@ public class ZombieFSM : MonoBehaviour
             case ZOMBIEBEHAVIOR.Attck:
                 break;
             case ZOMBIEBEHAVIOR.Tracking:
+                _zombieFSM_Tracking.StartStateBehavior();
                 break;
             case ZOMBIEBEHAVIOR.Moribund:
                 break;
@@ -115,14 +113,29 @@ public class ZombieFSM : MonoBehaviour
         }
     }
 
+    private void ConditionMethod_StatusChange()
+    {
+        if (trackingScript.GameOnjects.Count > 0 && _currentState == ZOMBIEBEHAVIOR.Idle)
+        {
+            ChangerState(ZombieFSM.ZOMBIEBEHAVIOR.Tracking);
+        }
+    }
+
     /* codes */
 
     private bool Initialize()
     {
-        if (TryGetComponent(out AnimMovement animMovement)) _animMovement = animMovement; else return false;
+        if (TryGetComponent(out AnimContoller animContoller)) _anim = animContoller; else return false;
         if (TryGetComponent(out ZombieFSM_Idle zombieFSM_Idle)) _zombieFSM_Idle = zombieFSM_Idle; else return false;
         if (TryGetComponent(out ZombieFSM_Tracking zombieFSM_Tracking)) _zombieFSM_Tracking = zombieFSM_Tracking; else return false;
 
         return true;
+    }
+
+    public void LostTarget(GameObject gameobject)
+    {
+        if (trackingScript.GameOnjects == null) ChangerState(ZOMBIEBEHAVIOR.Idle);
+        //else 다른 타겟이 있다면 타겟 변경
+        //else 공격할 오브젝트가 있다면 attack으로 상태 변경 후 추적 실행
     }
 }

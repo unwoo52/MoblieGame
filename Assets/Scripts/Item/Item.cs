@@ -15,7 +15,7 @@ public struct ItemData
     public Sprite itemImage;
 }
 
-public class Item : MonoBehaviour
+public class Item : MonoBehaviour, IGetBuildObject
 {
     private ItemData _itemData;
     public ItemData ItemData => _itemData;
@@ -79,5 +79,10 @@ public class Item : MonoBehaviour
     private bool IsExistItem()
     {
         return _itemData.itemCount > 0;
+    }
+
+    public GameObject GetbuildObject()
+    {
+        return ItemData.itemPrefab;
     }
 }

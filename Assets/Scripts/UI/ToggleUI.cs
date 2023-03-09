@@ -4,10 +4,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ToggleUI : MonoBehaviour
+public interface IToggleUI
+{
+    void ToggleUIWidth();
+}
+public class ToggleUI : MonoBehaviour, IToggleUI
 {
     private Coroutine coToggle;
     private bool IsHideUI = true;
+    private Color _originColor;
+    public Color OriginColor => _originColor;
     [SerializeField] private Sprite ToggleButtonImageShow;
     [SerializeField] private Sprite ToggleButtonImageHide;
     [SerializeField] private float ToggleSpeedInventoryUI = 0.06f;
@@ -15,7 +21,9 @@ public class ToggleUI : MonoBehaviour
 
     private void Start()
     {
+        _originColor = GetComponent<Image>().color;
         if(ContentRect == null) ContentRect = transform.parent.GetChild(0).GetComponent<RectTransform>();
+        GetComponent<Image>().sprite = IsHideUI ? ToggleButtonImageShow : ToggleButtonImageHide;
     }
     public void ToggleUIWidth()
     {

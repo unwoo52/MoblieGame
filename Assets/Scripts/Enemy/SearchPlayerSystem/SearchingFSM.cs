@@ -26,16 +26,10 @@ public class SearchingFSM : MonoBehaviour
         switch (_currentState)
         {
             case ZOMBIE_TARGETINGSTATE.Lookaround:
-                // Do look around behavior
-                // If target is detected, transition to Tracking state
                 break;
             case ZOMBIE_TARGETINGSTATE.Tracking:
-                // Do tracking behavior
-                // If target is lost, transition to LostTarget state
                 break;
             case ZOMBIE_TARGETINGSTATE.LostTarget:
-                // Do lost target behavior
-                // If target is found again, transition to Tracking state
                 break;
         }
     }
@@ -46,16 +40,10 @@ public class SearchingFSM : MonoBehaviour
         switch (_currentState)
         {
             case ZOMBIE_TARGETINGSTATE.Lookaround:
-                // Do look around behavior
-                // If target is detected, transition to Tracking state
                 break;
             case ZOMBIE_TARGETINGSTATE.Tracking:
-                // Do tracking behavior
-                // If target is lost, transition to LostTarget state
                 break;
             case ZOMBIE_TARGETINGSTATE.LostTarget:
-                // Do lost target behavior
-                // If target is found again, transition to Tracking state
                 break;
         }
     }
