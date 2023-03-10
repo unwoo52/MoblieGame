@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -20,6 +21,7 @@ public class TestItemMakeScript : MonoBehaviour
 
     private void Start()
     {
+        AddItem();
         Initialize();
     }
     private void Initialize()

@@ -10,7 +10,6 @@ public class InventoryManagement : MonoBehaviour
     [SerializeField] private GameObject _scrollView;
     [SerializeField] private GameObject _cancelUI;
     [SerializeField] private GameObject _toggleUI;
-    [SerializeField] private GameObject _particleObject;
 
     public GameObject ScrollView { get { return _scrollView; } }
     public GameObject CancelUI { get { return _cancelUI; } }

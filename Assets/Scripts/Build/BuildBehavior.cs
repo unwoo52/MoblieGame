@@ -1,5 +1,7 @@
+using Coffee.UIExtensions;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -10,12 +12,15 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     [SerializeField] private GameObject _buildObjectParent;
     [SerializeField] private GameObject _buildObject;
 
+
     //init object
-    private Vector2 ExitImagePosition;
+    private GameObject CancelUI;
+    private GameObject CancelUIBigRect;
     private InventoryManagement _inventoryManagement;
     [SerializeField] private GameObject _canvas;
     private IToggleUI itoggleUI;
     private Transform inventory;
+    private float distanceCancelBuildEffectOn = 0;
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!Initialize()) Debug.LogError("Fail Initialize");
@@ -24,17 +29,25 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     }
     public void OnDrag(PointerEventData eventData)
     {
-        //if pos at Exit Image
-        //effect Red
-        //inactive buildobject
+        //get mouse Pos
+        Vector2 mousePos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(CancelUIBigRect.GetComponent<RectTransform>(), eventData.position, eventData.enterEventCamera, out mousePos);
 
-        // if close to EXIT image... do lerp
-        Vector2 ExitImagePosition = 
-        eventData.position;
+        //calculating distance
+        distanceCancelBuildEffectOn = Mathf.Abs((mousePos.x - CancelUIBigRect.GetComponent<RectTransform>().rect.center.x) / (CancelUIBigRect.GetComponent<RectTransform>().rect.width * 2));
 
-        //pos tranlate at screen to ray
-            //buildobject pos ray hit
-
+        if (Is_CancelBuildEffectOn())
+        {
+            SetActive_UIParticle(true);
+            SetActive_Buildobject(false);
+            Effect_Exitbuild();
+        }
+        else
+        {
+            SetActive_UIParticle(false);
+            SetActive_Buildobject(true);
+            //locate buildobject at mouse pos
+        }        
     }
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -45,7 +58,7 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
 
         //if on exit build image > Cancelbuild();
         if (RectTransformUtility.RectangleContainsScreenPoint(
-            _inventoryManagement.CancelUI.transform.GetChild(0).GetComponent<RectTransform>(), Input.mousePosition))
+            CancelUI.GetComponent<CancelImageUI>().CancelImageBigRect.GetComponent<RectTransform>(), Input.mousePosition))
         {
             Cancelbuild();
         }
@@ -86,6 +99,24 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
 
     //OnDrag
     #region .
+    private bool Is_CancelBuildEffectOn()
+    {
+        return distanceCancelBuildEffectOn < 1;
+    }
+    private void SetActive_Buildobject(bool setActiveValue)
+    {
+        _buildObject.SetActive(setActiveValue);
+    }
+    private void SetActive_UIParticle(bool setActiveValue)
+    {
+        CancelUI.GetComponent<CancelImageUI>().UiParticle.SetActive(setActiveValue);
+    }
+    private void Effect_Exitbuild()
+    {
+        CancelUIBigRect.GetComponent<RectTransform>().localScale = Vector3.Lerp(new Vector3(1.5f, 1.5f, 0), new Vector3(1, 1, 0), distanceCancelBuildEffectOn);
+        CancelUI.GetComponent<CancelImageUI>().UiParticleEndPos.GetComponent<RectTransform>().position = Input.mousePosition;
+    }
+
     #endregion
 
     //OnEndDrag
@@ -107,11 +138,6 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
 
     /*codes*/
     #region .
-    private bool GetExitImagePosition()
-    {
-        ExitImagePosition = _inventoryManagement.CancelUI.GetComponent<RectTransform>().rect.position;
-        return ExitImagePosition != null;
-    }
     private bool GetCanvas()
     {
         CanvasManagement.Instance.GetCanvas(ref _canvas);
@@ -123,7 +149,9 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
         CanvasManagement.Instance.GetInventory(out inventory);
         _inventoryManagement = inventory.GetComponent<InventoryManagement>();
         itoggleUI = _inventoryManagement.ToggleUI.GetComponent<IToggleUI>();
-        return inventory != null && _inventoryManagement != null && itoggleUI != null;
+        CancelUI = _inventoryManagement.CancelUI;
+        CancelUIBigRect = CancelUI.GetComponent<CancelImageUI>().CancelImageBigRect;
+        return inventory != null && _inventoryManagement != null && itoggleUI != null && CancelUIBigRect != null && CancelUI != null;
     }
     #endregion
 }
