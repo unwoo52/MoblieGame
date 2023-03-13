@@ -12,11 +12,14 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     [SerializeField] private GameObject _buildObjectParent;
     [SerializeField] private GameObject _buildObject;
 
+    //Inventory Objects
+    private Inventory Inventory;
+    private CancelUI CancelUI;
+    private InventoryParticle InventoryParticle;
+    [SerializeField] private CancelImage CanclImage;
 
     //init object
-    private GameObject CancelUI;
     private GameObject CancelUIBigRect;
-    private InventoryManagement _inventoryManagement;
     [SerializeField] private GameObject _canvas;
     private IToggleUI itoggleUI;
     private Transform inventory;
@@ -25,26 +28,33 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     {
         if (!Initialize()) Debug.LogError("Fail Initialize");
         InstantiateBuildObject();
-        SetActiveExitImageAndHideInventoryUI(true);
+        SetActiveExitImageAndToggleInventoryUI(true);
     }
     public void OnDrag(PointerEventData eventData)
     {
+        //effect start point change
+        //effect start position make to lerp
+
+
         //get mouse Pos
         Vector2 mousePos;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(CancelUIBigRect.GetComponent<RectTransform>(), eventData.position, eventData.enterEventCamera, out mousePos);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            CancelUIBigRect.GetComponent<RectTransform>(),
+            eventData.position,
+            eventData.enterEventCamera,
+            out mousePos);
 
         //calculating distance
-        distanceCancelBuildEffectOn = Mathf.Abs((mousePos.x - CancelUIBigRect.GetComponent<RectTransform>().rect.center.x) / (CancelUIBigRect.GetComponent<RectTransform>().rect.width * 2));
+        distanceCancelBuildEffectOn = Mathf.Abs((
+            mousePos.x - CancelUIBigRect.GetComponent<RectTransform>().rect.center.x) / (CancelUIBigRect.GetComponent<RectTransform>().rect.width * 2));
 
         if (Is_CancelBuildEffectOn())
         {
-            SetActive_UIParticle(true);
             SetActive_Buildobject(false);
             Effect_Exitbuild();
         }
         else
         {
-            SetActive_UIParticle(false);
             SetActive_Buildobject(true);
             //locate buildobject at mouse pos
         }        
@@ -58,7 +68,7 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
 
         //if on exit build image > Cancelbuild();
         if (RectTransformUtility.RectangleContainsScreenPoint(
-            CancelUI.GetComponent<CancelImageUI>().CancelImageBigRect.GetComponent<RectTransform>(), Input.mousePosition))
+            CancelUI.GetComponent<CancelUI>().CancelImageBigRect.GetComponent<RectTransform>(), Input.mousePosition))
         {
             Cancelbuild();
         }
@@ -88,14 +98,15 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
         _buildObject = Instantiate(gameObject);
         _buildObject.transform.SetParent(_buildObjectParent.transform);
     }
-    private void SetActiveExitImageAndHideInventoryUI(bool isActiveUI)
+    private void SetActiveExitImageAndToggleInventoryUI(bool isActiveUI)
     {
+        CancelUI.GetComponent<CancelUI>().UiParticle.SetActive(isActiveUI);
         itoggleUI.ToggleUIWidth();
-        _inventoryManagement.CancelUI.SetActive(isActiveUI);
-        GameObject ToggleUI = _inventoryManagement.ToggleUI;
+        Inventory.CancelUI.SetActive(isActiveUI);
+        GameObject ToggleUI = Inventory.ToggleUI;
         ToggleUI.GetComponent<Image>().color = isActiveUI ? new Color(0, 0, 0, 0) : ToggleUI.GetComponent<ToggleUI>().OriginColor;
     }
-    #endregion
+    #endregion 
 
     //OnDrag
     #region .
@@ -107,14 +118,15 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     {
         _buildObject.SetActive(setActiveValue);
     }
-    private void SetActive_UIParticle(bool setActiveValue)
-    {
-        CancelUI.GetComponent<CancelImageUI>().UiParticle.SetActive(setActiveValue);
-    }
     private void Effect_Exitbuild()
     {
         CancelUIBigRect.GetComponent<RectTransform>().localScale = Vector3.Lerp(new Vector3(1.5f, 1.5f, 0), new Vector3(1, 1, 0), distanceCancelBuildEffectOn);
-        CancelUI.GetComponent<CancelImageUI>().UiParticleEndPos.GetComponent<RectTransform>().position = Input.mousePosition;
+        CancelUI.GetComponent<CancelUI>().UiParticleEndPos.GetComponent<RectTransform>().position = Input.mousePosition;
+
+        CancelUI.GetComponent<CancelUI>().UiParticle.GetComponent<UIParticle>().scale = 
+            Vector3.Distance(
+                CancelUI.GetComponent<CancelUI>().UiParticleEndPos.GetComponent<RectTransform>().position
+                , Input.mousePosition);//<<<<<<<<<<<
     }
 
     #endregion
@@ -131,13 +143,13 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
         _buildObjectParent.GetComponent<ICancelbuild>().CancelBuild();
 
         //inactive ExitImage and toggle Inventory
-        SetActiveExitImageAndHideInventoryUI(false);
+        SetActiveExitImageAndToggleInventoryUI(false);
     }
     #endregion
 
 
     /*codes*/
-    #region .
+#region .
     private bool GetCanvas()
     {
         CanvasManagement.Instance.GetCanvas(ref _canvas);
@@ -147,11 +159,15 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     private bool GetInventoryTransform()
     {
         CanvasManagement.Instance.GetInventory(out inventory);
-        _inventoryManagement = inventory.GetComponent<InventoryManagement>();
-        itoggleUI = _inventoryManagement.ToggleUI.GetComponent<IToggleUI>();
-        CancelUI = _inventoryManagement.CancelUI;
-        CancelUIBigRect = CancelUI.GetComponent<CancelImageUI>().CancelImageBigRect;
-        return inventory != null && _inventoryManagement != null && itoggleUI != null && CancelUIBigRect != null && CancelUI != null;
+        Inventory = inventory.GetComponent<Inventory>();
+        itoggleUI = Inventory.ToggleUI.GetComponent<IToggleUI>();
+        CancelUI = Inventory.CancelUI;
+        CancelUIBigRect = CancelUI.GetComponent<CancelUI>().CancelImageBigRect;
+        return inventory != null && Inventory != null && itoggleUI != null && CancelUIBigRect != null && CancelUI != null;
+    }
+    private bool GetCancelImage()
+    {
+        CanclImage = Inventory.CancelUI.GetComponent<CancelUI>().CancelBuildImageScript;
     }
     #endregion
 }

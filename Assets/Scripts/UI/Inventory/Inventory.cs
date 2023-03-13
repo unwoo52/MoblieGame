@@ -5,7 +5,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryManagement : MonoBehaviour
+public class Inventory : MonoBehaviour
 {
     [SerializeField] private GameObject _scrollView;
     [SerializeField] private GameObject _cancelUI;

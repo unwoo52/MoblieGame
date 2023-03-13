@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CancelImageUI : MonoBehaviour
+public class CancelUI : MonoBehaviour
 {
     [SerializeField] private GameObject _uiParticle;
     [SerializeField] private GameObject _uiParticleEndPos;
@@ -12,4 +12,9 @@ public class CancelImageUI : MonoBehaviour
     public GameObject CancelImage => _cancelImage;
     public GameObject CancelImageBigRect => _cancelImageBigRect;
     public GameObject UiParticleEndPos => _uiParticleEndPos;
+
+    [SerializeField] private CancelImage _cancelBuildImageScript;
+    [SerializeField] private InventoryParticle _inventoryParticleScript;
+    public CancelImage CancelBuildImageScript=> _cancelBuildImageScript;
+    public InventoryParticle InventoryParticleScript => _inventoryParticleScript;
 }
