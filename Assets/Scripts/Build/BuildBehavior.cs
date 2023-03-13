@@ -15,8 +15,8 @@ public class BuildBehavior : MonoBehaviour, IBeginDragHandler, IEndDragHandler, 
     //Inventory Objects
     private Inventory Inventory;
     private CancelUI CancelUI;
+    private CancelImage CanclImage;
     private InventoryParticle InventoryParticle;
-    [SerializeField] private CancelImage CanclImage;
 
     //init object
     private GameObject CancelUIBigRect;
